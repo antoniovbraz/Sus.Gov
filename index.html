@@ -55,10 +55,16 @@
             background-color: #0056b3;
         }
 
-        .error {
-            color: red;
+        .result {
+            color: #333;
             font-weight: bold;
             margin-top: 20px;
+        }
+
+        .warning {
+            color: red;
+            margin-top: 20px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -67,8 +73,8 @@
         <h1>SUS</h1>
         <h2>Consulta Online</h2>
 
-        <select id="sintomas">
-            <option value="">Selecione um sintoma</option>
+        <select id="primeiroSintoma" onchange="mostrarSegundaLista()">
+            <option value="">Selecione um sintoma inicial</option>
             <option value="febre">Febre</option>
             <option value="tosse">Tosse</option>
             <option value="dor_de_cabeca">Dor de cabeça</option>
@@ -77,21 +83,95 @@
 
         <br>
 
-        <button onclick="confirmarSintoma()">Confirmar</button>
+        <div id="segundaLista" style="display: none;">
+            <select id="segundoSintoma">
+                <option value="">Selecione um sintoma adicional</option>
+            </select>
 
-        <p id="mensagem" class="error"></p>
+            <br>
+
+            <button onclick="confirmarSintomas()">Confirmar</button>
+        </div>
+
+        <p id="mensagem" class="result"></p>
+        <p class="warning">Lembre-se: uma máquina não é um médico. Em caso sério, vá ao hospital.</p>
     </div>
 
     <script>
-        function confirmarSintoma() {
-            const sintomaSelecionado = document.getElementById('sintomas').value;
+        function mostrarSegundaLista() {
+            const primeiroSintoma = document.getElementById('primeiroSintoma').value;
+            const segundaLista = document.getElementById('segundaLista');
+            const segundoSintoma = document.getElementById('segundoSintoma');
+
+            const opcoesSintomas = {
+                febre: [
+                    { value: "calafrios", text: "Calafrios" },
+                    { value: "suor_excessivo", text: "Suor excessivo" },
+                    { value: "fadiga", text: "Fadiga" }
+                ],
+                tosse: [
+                    { value: "tosse_seca", text: "Tosse seca" },
+                    { value: "tosse_produtiva", text: "Tosse produtiva" },
+                    { value: "dor_garganta", text: "Dor de garganta" }
+                ],
+                dor_de_cabeca: [
+                    { value: "enxaqueca", text: "Enxaqueca" },
+                    { value: "sensibilidade_luz", text: "Sensibilidade à luz" },
+                    { value: "visao_turva", text: "Visão turva" }
+                ],
+                cansaço: [
+                    { value: "dificuldade_respirar", text: "Dificuldade para respirar" },
+                    { value: "dor_muscular", text: "Dor muscular" },
+                    { value: "palpitacoes", text: "Palpitações" }
+                ]
+            };
+
+            if (primeiroSintoma) {
+                segundaLista.style.display = 'block';
+                segundoSintoma.innerHTML = '<option value="">Selecione um sintoma adicional</option>';
+                opcoesSintomas[primeiroSintoma].forEach(sintoma => {
+                    const option = document.createElement('option');
+                    option.value = sintoma.value;
+                    option.textContent = sintoma.text;
+                    segundoSintoma.appendChild(option);
+                });
+            } else {
+                segundaLista.style.display = 'none';
+            }
+        }
+
+        function confirmarSintomas() {
+            const primeiroSintoma = document.getElementById('primeiroSintoma').value;
+            const segundoSintoma = document.getElementById('segundoSintoma').value;
             const mensagem = document.getElementById('mensagem');
 
-            if (sintomaSelecionado) {
-                mensagem.textContent = 'ERRO 101: Já há alguém com esse sintoma';
+            const diagnosticos = {
+                febre: {
+                    calafrios: "Possíveis doenças: Gripe, Infecção viral.",
+                    suor_excessivo: "Possíveis doenças: Dengue, Febre tifóide.",
+                    fadiga: "Possíveis doenças: COVID-19, Mononucleose."
+                },
+                tosse: {
+                    tosse_seca: "Possíveis doenças: COVID-19, Bronquite.",
+                    tosse_produtiva: "Possíveis doenças: Pneumonia, Tuberculose.",
+                    dor_garganta: "Possíveis doenças: Amigdalite, Faringite."
+                },
+                dor_de_cabeca: {
+                    enxaqueca: "Possíveis doenças: Enxaqueca, Cefaleia tensional.",
+                    sensibilidade_luz: "Possíveis doenças: Meningite, Enxaqueca.",
+                    visao_turva: "Possíveis doenças: Problemas de visão, Pressão alta."
+                },
+                cansaço: {
+                    dificuldade_respirar: "Possíveis doenças: Anemia, Insuficiência cardíaca.",
+                    dor_muscular: "Possíveis doenças: Fibromialgia, Gripe.",
+                    palpitacoes: "Possíveis doenças: Ansiedade, Arritmia cardíaca."
+                }
+            };
+
+            if (primeiroSintoma && segundoSintoma) {
+                mensagem.textContent = diagnosticos[primeiroSintoma][segundoSintoma] || "Não há informações suficientes para este conjunto de sintomas.";
             } else {
-                mensagem.textContent = '';
-                alert('Por favor, selecione um sintoma.');
+                mensagem.textContent = "Por favor, selecione sintomas em ambas as listas.";
             }
         }
     </script>
