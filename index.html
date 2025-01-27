@@ -36,7 +36,7 @@
             margin-bottom: 20px;
         }
 
-        select, button {
+        select, button, input[type="number"] {
             padding: 10px;
             font-size: 1rem;
             margin: 10px 0;
@@ -79,11 +79,18 @@
             <option value="tosse">Tosse</option>
             <option value="dor_de_cabeca">Dor de cabeça</option>
             <option value="cansaço">Cansaço</option>
+            <option value="náusea">Náusea</option>
+            <option value="erupcao_cutanea">Erupção cutânea</option>
         </select>
 
         <br>
 
         <div id="segundaLista" style="display: none;">
+            <div id="inputTemperatura" style="display: none;">
+                <label for="temperatura">Digite sua temperatura (em °C):</label>
+                <input type="number" id="temperatura" step="0.1" min="35" max="42">
+            </div>
+
             <select id="segundoSintoma">
                 <option value="">Selecione um sintoma adicional</option>
             </select>
@@ -102,6 +109,7 @@
             const primeiroSintoma = document.getElementById('primeiroSintoma').value;
             const segundaLista = document.getElementById('segundaLista');
             const segundoSintoma = document.getElementById('segundoSintoma');
+            const inputTemperatura = document.getElementById('inputTemperatura');
 
             const opcoesSintomas = {
                 febre: [
@@ -123,12 +131,29 @@
                     { value: "dificuldade_respirar", text: "Dificuldade para respirar" },
                     { value: "dor_muscular", text: "Dor muscular" },
                     { value: "palpitacoes", text: "Palpitações" }
+                ],
+                náusea: [
+                    { value: "vomito", text: "Vômito" },
+                    { value: "tontura", text: "Tontura" },
+                    { value: "dor_abdominal", text: "Dor abdominal" }
+                ],
+                erupcao_cutanea: [
+                    { value: "coceira", text: "Coceira" },
+                    { value: "vermelhidao", text: "Vermelhidão" },
+                    { value: "inchaço", text: "Inchaço" }
                 ]
             };
 
             if (primeiroSintoma) {
                 segundaLista.style.display = 'block';
                 segundoSintoma.innerHTML = '<option value="">Selecione um sintoma adicional</option>';
+
+                if (primeiroSintoma === 'febre') {
+                    inputTemperatura.style.display = 'block';
+                } else {
+                    inputTemperatura.style.display = 'none';
+                }
+
                 opcoesSintomas[primeiroSintoma].forEach(sintoma => {
                     const option = document.createElement('option');
                     option.value = sintoma.value;
@@ -143,6 +168,7 @@
         function confirmarSintomas() {
             const primeiroSintoma = document.getElementById('primeiroSintoma').value;
             const segundoSintoma = document.getElementById('segundoSintoma').value;
+            const temperatura = document.getElementById('temperatura').value;
             const mensagem = document.getElementById('mensagem');
 
             const diagnosticos = {
@@ -165,13 +191,25 @@
                     dificuldade_respirar: "Possíveis doenças: Anemia, Insuficiência cardíaca.",
                     dor_muscular: "Possíveis doenças: Fibromialgia, Gripe.",
                     palpitacoes: "Possíveis doenças: Ansiedade, Arritmia cardíaca."
+                },
+                náusea: {
+                    vomito: "Possíveis doenças: Intoxicação alimentar, Gastrite.",
+                    tontura: "Possíveis doenças: Labirintite, Hipotensão.",
+                    dor_abdominal: "Possíveis doenças: Gastroenterite, Apendicite."
+                },
+                erupcao_cutanea: {
+                    coceira: "Possíveis doenças: Dermatite, Alergia.",
+                    vermelhidao: "Possíveis doenças: Reações alérgicas, Infecções cutâneas.",
+                    inchaço: "Possíveis doenças: Picadas de inseto, Urticária."
                 }
             };
 
-            if (primeiroSintoma && segundoSintoma) {
+            if (primeiroSintoma === 'febre' && temperatura) {
+                mensagem.textContent = `Temperatura registrada: ${temperatura}°C. ` + (diagnosticos[primeiroSintoma][segundoSintoma] || "Por favor, verifique os sintomas selecionados.");
+            } else if (primeiroSintoma && segundoSintoma) {
                 mensagem.textContent = diagnosticos[primeiroSintoma][segundoSintoma] || "Não há informações suficientes para este conjunto de sintomas.";
             } else {
-                mensagem.textContent = "Por favor, selecione sintomas em ambas as listas.";
+                mensagem.textContent = "Por favor, selecione sintomas em ambas as listas e insira a temperatura, se aplicável.";
             }
         }
     </script>
